@@ -17,7 +17,8 @@ const insertMsg = document.getElementById("insertMsg");
 const loadMsg = document.getElementById("loadMsg");
 const tbody = document.getElementById("licensesBody");
 
-const supabase = window.supabase.createClient(
+const { createClient } = window.supabase;
+const supabaseClient = createClient(
   "https://whhpiweaonnarrktiaqb.supabase.co",
   "sb_publishable_yBIw95BY3FevRkAPSjHjHw_V86TYPXl"
 );
@@ -26,7 +27,7 @@ let hasSession = false;
 
 function setView(auth) {
   hasSession = !!auth;
-  if (!supabase) {
+  if (!supabaseClient) {
     authView.classList.remove("hidden");
     dashView.classList.add("hidden");
     return;
@@ -72,20 +73,20 @@ function randKey() {
 
 async function signIn(email, password) {
   authErr.textContent = "";
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) authErr.textContent = error.message;
 }
 
 async function signUp(email, password) {
   authErr.textContent = "";
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { error } = await supabaseClient.auth.signUp({ email, password });
   if (error) authErr.textContent = error.message;
 }
 
 async function loadLicenses() {
   loadMsg.textContent = "Loading…";
   tbody.innerHTML = "";
-  const { data, error } = await supabase.from("licenses").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseClient.from("licenses").select("*").order("created_at", { ascending: false });
   if (error) {
     loadMsg.textContent = error.message;
     return;
@@ -119,12 +120,12 @@ async function loadLicenses() {
     tbody.appendChild(tr);
 
     activeChk.addEventListener("change", async () => {
-      const { error } = await supabase.from("licenses").update({ is_active: activeChk.checked }).eq("id", row.id);
+      const { error } = await supabaseClient.from("licenses").update({ is_active: activeChk.checked }).eq("id", row.id);
       if (error) loadMsg.textContent = error.message; else loadMsg.textContent = "";
     });
     saveBtn.addEventListener("click", async () => {
       const val = expiryInput.value || null;
-      const { error } = await supabase.from("licenses").update({ expiry_date: val }).eq("id", row.id);
+      const { error } = await supabaseClient.from("licenses").update({ expiry_date: val }).eq("id", row.id);
       if (error) loadMsg.textContent = error.message; else loadMsg.textContent = "Saved";
       setTimeout(()=>{loadMsg.textContent="";},1200);
     });
@@ -141,7 +142,7 @@ async function insertLicense() {
     return;
   }
   const payload = { key, expiry_date: exp, is_active: active };
-  const { error } = await supabase.from("licenses").insert([payload]);
+  const { error } = await supabaseClient.from("licenses").insert([payload]);
   if (error) {
     insertMsg.textContent = error.message;
     return;
@@ -155,13 +156,13 @@ async function insertLicense() {
 }
 
 function hookAuth() {
-  if (!supabase) return;
-  supabase.auth.getSession().then(({ data }) => {
+  if (!supabaseClient) return;
+  supabaseClient.auth.getSession().then(({ data }) => {
     setView(!!data.session);
     syncRoute();
     if (data.session) loadLicenses();
   });
-  supabase.auth.onAuthStateChange(async (_e, session) => {
+  supabaseClient.auth.onAuthStateChange(async (_e, session) => {
     setView(!!session);
     syncRoute();
     if (session) loadLicenses();
@@ -171,25 +172,25 @@ function hookAuth() {
 if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    if (!supabase) return;
+    if (!supabaseClient) return;
     signIn(emailEl.value, passEl.value);
   });
 }
 if (signUpBtn) {
   signUpBtn.addEventListener("click", () => {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     signUp(emailEl.value, passEl.value);
   });
 }
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    if (!supabaseClient) return;
+    await supabaseClient.auth.signOut();
   });
 }
 if (reloadBtn) {
   reloadBtn.addEventListener("click", () => {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     loadLicenses();
   });
 }
@@ -200,7 +201,7 @@ if (genKeyBtn) {
 }
 if (insertBtn) {
   insertBtn.addEventListener("click", () => {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     insertLicense();
   });
 }
