@@ -71,10 +71,14 @@ function randKey() {
   return `SOVEMENT-${out}`;
 }
 
-async function signIn(email, password) {
-  authErr.textContent = "";
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) authErr.textContent = error.message;
+async function login(email, password) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert(error.message);
+    return;
+  }
+  console.log("Login success:", data);
+  location.hash = "#dashboard";
 }
 
 async function signUp(email, password) {
@@ -173,7 +177,7 @@ if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!supabaseClient) return;
-    signIn(emailEl.value, passEl.value);
+    login(emailEl.value, passEl.value);
   });
 }
 if (signUpBtn) {
