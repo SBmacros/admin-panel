@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <div id="configWarning" class="banner hidden">
+      <div class="banner-content">
+        <span>Missing Supabase configuration. Copy config.sample.js to config.js and fill in your values.</span>
+      </div>
+    </div>
+
+    <section id="authView" class="centered">
+      <div class="card">
+        <h1>Admin Login</h1>
+        <form id="loginForm">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+          <button type="submit" id="signInBtn">Sign In</button>
+          <button type="button" id="signUpBtn" class="link-btn">Create account</button>
+        </form>
+        <div id="authError" class="error"></div>
+      </div>
+    </section>
+
+    <section id="dashboardView" class="container hidden">
+      <header class="header">
+        <h1>Dashboard</h1>
+        <div>
+          <button id="reloadBtn">Reload</button>
+          <button id="logoutBtn" class="secondary">Logout</button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <div class="card">
+          <h2>New License</h2>
+          <div class="form-row">
+            <input type="text" id="newKey" placeholder="SOVEMENT-XXXXXXXXXXXX" autocomplete="off">
+            <button id="genKeyBtn">Generate</button>
+          </div>
+          <div class="form-row">
+            <input type="date" id="newExpiry">
+            <label class="switch">
+              <input type="checkbox" id="newActive" checked>
+              <span>Active</span>
+            </label>
+          </div>
+          <button id="insertBtn" class="primary">Insert</button>
+          <div id="insertMsg" class="muted"></div>
+        </div>
+
+        <div class="card">
+          <h2>Licenses</h2>
+          <div class="table-wrap">
+            <table class="table" id="licensesTable">
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Expiry</th>
+                  <th>Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="licensesBody"></tbody>
+            </table>
+          </div>
+          <div id="loadMsg" class="muted"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
